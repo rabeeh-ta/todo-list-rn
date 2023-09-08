@@ -11,7 +11,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import Home from './src/pages/Home';
-import Calendar from './src/pages/Calendar';
+import CalendarPage from './src/pages/Calendar';
 
 const Stack = createNativeStackNavigator()
 export default function App()  {
@@ -22,7 +22,7 @@ export default function App()  {
      <NavigationContainer>
         <Stack.Navigator initialRouteName='Home' screenOptions={{headerShown:false}}>
           <Stack.Screen name="Home" component={Home} />
-          <Stack.Screen name="Calendar" component={Calendar}/>
+          <Stack.Screen name="Calendar" component={CalendarPage}/>
         </Stack.Navigator>
      </NavigationContainer>
     );

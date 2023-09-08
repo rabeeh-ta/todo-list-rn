@@ -11,12 +11,11 @@ import {
 import { useFonts } from 'expo-font';
 import moment from 'moment';
 
-import { FontAwesome5 } from '@expo/vector-icons';
-
 import { AntDesign } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 
 import CheckBox from '../components/CheckBox';
+import TopBar from '../components/TopBar';
 
 export default function Home({navigation})  {
     const [dateContext, setDateContext] = useState(new Date());
@@ -29,7 +28,10 @@ export default function Home({navigation})  {
       'OpenSans-Regular': require('../../assets/fonts/OpenSan-Regular.ttf'),
       'Rubik-Bold': require('../../assets/fonts/Rubik-Bold.ttf'),
     });
-  
+    
+    if (!fontsLoaded) {
+      return null;
+    }
    
 
     function addBtnHandler() {
@@ -62,31 +64,21 @@ export default function Home({navigation})  {
   
       setAllTodos(newAllTodos);
     }
-  
-    if (!fontsLoaded) {
-      return null;
-    }
+
   
     return (
       <SafeAreaView style={styles.safeAreaViewContainer}>
-        <StatusBar style="dark" backgroundColor="#EDEDEB" />
+        <StatusBar style="light" backgroundColor="#000" />
   
         <View style={styles.container}>
-          <View style={styles.topBar}>
-            <View style={styles.topBarLeft}>
-              <Text style={styles.topBarDateText}>
-                {moment(dateContext).format('dddd, MMM D')}
-              </Text>
-              <Text style={styles.topBarHeading}>To-Do Lists</Text>
-            </View>
-            <Pressable onPress={()=> navigation.navigate("Calendar")}>
- <FontAwesome5 name="calendar-alt" size={30} color="black"  />
+          
+          <TopBar 
+            dateContext={dateContext} 
+            navigation={navigation} 
+            heading={"Todo List"} 
+            subHeading={moment(dateContext).format('dddd, MMM D')}
+          ></TopBar>
 
-            </Pressable>
-           
-            <View style={styles.topBarRight}></View>
-          </View>
-  
           <View style={styles.todoListBody}>
             <TextInput
               style={styles.todoInp}
@@ -135,27 +127,6 @@ const styles = StyleSheet.create({
       flex: 1,
       backgroundColor: '#EDEDEB',
       alignItems: 'center',
-    },
-    topBar: {
-      height: 80,
-      flexDirection: 'row',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-    },
-    topBarLeft: {
-      width: '70%',
-      height: '100%',
-      flex: 1,
-      justifyContent: 'center',
-    },
-    topBarDateText: {
-      fontFamily: 'Poppins-Medium',
-      fontSize: 14,
-      color: '#686866',
-    },
-    topBarHeading: {
-      fontFamily: 'Rubik-Bold',
-      fontSize: 30,
     },
     todoListBody: {
       marginTop: 15,
