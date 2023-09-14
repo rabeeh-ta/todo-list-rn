@@ -17,10 +17,15 @@ import { useEffect, useState } from 'react';
 import CheckBox from '../components/CheckBox';
 import TopBar from '../components/TopBar';
 
+import store from '../state/store';
+import { changeSelectedTodoDate } from '../state/features/todoSlice';
+
 export default function Home({ navigation }) {
-  const [dateContext, setDateContext] = useState(new Date());
+
   const [allTodos, setAllTodos] = useState([]);
   const [todo, setTodo] = useState('');
+
+
 
   const [fontsLoaded] = useFonts({
     'Poppins-Light': require('../../assets/fonts/Poppins-Light.ttf'),
@@ -34,6 +39,7 @@ export default function Home({ navigation }) {
   }
 
   function addBtnHandler() {
+    store.dispatch(changeSelectedTodoDate(moment().valueOf()))
     if (todo != '') {
       setAllTodos((prevTodos) => {
         return [
@@ -70,12 +76,11 @@ export default function Home({ navigation }) {
 
       <View style={styles.container}>
         <TopBar
-          dateContext={dateContext}
+         
           navigation={navigation}
-          heading={'Todo List'}
-          subHeading={moment(dateContext).format('dddd, MMM D')}
+        
           rightIcon={'Calendar'}
-          data={{ dateSelected: dateContext }}
+       
         ></TopBar>
 
         <View style={styles.todoListBody}>
@@ -85,6 +90,8 @@ export default function Home({ navigation }) {
             value={todo}
             placeholder="enter your todoo"
           />
+
+      
 
           <ScrollView style={styles.todoListsDiv}>
             {allTodos.map((todo) => {

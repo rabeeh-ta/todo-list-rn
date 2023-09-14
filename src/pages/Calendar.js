@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Calendar, LocaleConfig } from 'react-native-calendars';
 
+import store from '../state/store';
+import { changeSelectedTodoDate } from '../state/features/todoSlice';
+
 import TopBar from '../components/TopBar';
 
 export default function CalendarPage({ navigation }) {
   const [selected, setSelected] = useState();
+
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <TopBar
-        heading={'friday 20'}
-        subHeading={'Select date'}
         navigation={navigation}
         rightIcon={'Back'}
       ></TopBar>
@@ -21,6 +23,7 @@ export default function CalendarPage({ navigation }) {
           theme={styles.calendarTheme}
           onDayPress={(day) => {
             setSelected(day.dateString);
+            store.dispatch(changeSelectedTodoDate( day.timestamp))
           }}
           markedDates={{
             [selected]: {
