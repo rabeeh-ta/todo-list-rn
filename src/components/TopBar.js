@@ -9,15 +9,14 @@ import store from '../state/store';
 import { changeSelectedTodoDate } from '../state/features/todoSlice';
 
 export default function TopBar({ navigation, rightIcon }) {
-  const [selectedDate, setselectedDate] = useState(new Date());
+  const [selectedDate, setSelectedDate] = useState(new Date());
 
   useEffect(() => {
     const unsubscribe = store.subscribe(() => {
-      const changedTodoDate =  store.getState()
-      setselectedDate(changedTodoDate.todoDate.selectedTodoDate)
+      const changedTodoDate = store.getState();
+      setSelectedDate(changedTodoDate.todoDate.selectedTodoDate);
     });
 
-    // This will unsubscribe the listener when the component unmounts
     return () => {
       unsubscribe();
     };
@@ -26,7 +25,9 @@ export default function TopBar({ navigation, rightIcon }) {
   return (
     <View style={styles.topBar}>
       <View style={styles.topBarLeft}>
-        <Text style={styles.topBarDateText}>{moment(selectedDate).format('dddd, MMM D')}</Text>
+        <Text style={styles.topBarDateText}>
+          {moment(selectedDate).format('dddd, MMM D')}
+        </Text>
         <Text style={styles.topBarHeading}>Todo List</Text>
       </View>
 

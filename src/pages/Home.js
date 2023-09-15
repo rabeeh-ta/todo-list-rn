@@ -19,27 +19,28 @@ import TopBar from '../components/TopBar';
 
 import store from '../state/store';
 import { changeSelectedTodoDate } from '../state/features/todoSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function Home({ navigation }) {
-
+  const [selectedDate, setSelectedDate] = useState(null);
   const [allTodos, setAllTodos] = useState([]);
   const [todo, setTodo] = useState('');
 
+  // read the value from store and keep in state
+  useEffect(() => {
+    const unsubscribe = store.subscribe(() => {
+      const changedTodoDate = store.getState();
+      setSelectedDate(changedTodoDate.todoDate.selectedTodoDate);
+    });
 
-
-  const [fontsLoaded] = useFonts({
-    'Poppins-Light': require('../../assets/fonts/Poppins-Light.ttf'),
-    'Poppins-Medium': require('../../assets/fonts/Poppins-Medium.ttf'),
-    'OpenSans-Regular': require('../../assets/fonts/OpenSan-Regular.ttf'),
-    'Rubik-Bold': require('../../assets/fonts/Rubik-Bold.ttf'),
-  });
-
-  if (!fontsLoaded) {
-    return null;
-  }
+    return () => {
+      unsubscribe();
+    };
+  }, []);
 
   function addBtnHandler() {
-    store.dispatch(changeSelectedTodoDate(moment().valueOf()))
+    store.dispatch(changeSelectedTodoDate(moment().valueOf()));
+    const dateTime = moment(selectedDate).valueOf();
     if (todo != '') {
       setAllTodos((prevTodos) => {
         return [
@@ -48,6 +49,7 @@ export default function Home({ navigation }) {
             id: Number(Math.random().toString().slice(2)),
             done: false,
             content: todo,
+            dateTime: dateTime,
           },
         ];
       });
@@ -70,18 +72,52 @@ export default function Home({ navigation }) {
     setAllTodos(newAllTodos);
   }
 
+  async function saveToStorage() {
+    try {
+      const dateKey = moment(selectedDate).format('l');
+      await AsyncStorage.setItem(dateKey, JSON.stringify(allTodos));
+    } catch (e) {
+      Alert('error while saving to Storage');
+    }
+  }
+  // when allTodoChanges put the save the values to storage
+  useEffect(() => {
+    saveToStorage();
+  }, [allTodos]);
+
+  async function readFromStorage() {
+    try {
+      const dateKey = moment(selectedDate).format('l');
+      const value = await AsyncStorage.getItem(dateKey);
+      setAllTodos(JSON.parse(value));
+    } catch (e) {
+      // error reading value
+      Alert('error while reading Storage');
+    }
+  }
+
+  // on first load and if date changes read the todos from storage and save to state
+  useEffect(() => {
+    readFromStorage();
+  }, [selectedDate]);
+
+  const [fontsLoaded] = useFonts({
+    'Poppins-Light': require('../../assets/fonts/Poppins-Light.ttf'),
+    'Poppins-Medium': require('../../assets/fonts/Poppins-Medium.ttf'),
+    'OpenSans-Regular': require('../../assets/fonts/OpenSan-Regular.ttf'),
+    'Rubik-Bold': require('../../assets/fonts/Rubik-Bold.ttf'),
+  });
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <SafeAreaView style={styles.safeAreaViewContainer}>
       <StatusBar style="light" backgroundColor="#000" />
 
       <View style={styles.container}>
-        <TopBar
-         
-          navigation={navigation}
-        
-          rightIcon={'Calendar'}
-       
-        ></TopBar>
+        <TopBar navigation={navigation} rightIcon={'Calendar'}></TopBar>
 
         <View style={styles.todoListBody}>
           <TextInput
@@ -91,22 +127,24 @@ export default function Home({ navigation }) {
             placeholder="enter your todoo"
           />
 
-      
-
-          <ScrollView style={styles.todoListsDiv}>
-            {allTodos.map((todo) => {
-              return (
-                <View style={styles.todoList} key={todo.id}>
-                  <CheckBox
-                    checked={todo.done}
-                    onClickHandler={doneTodo}
-                    id={todo.id}
-                  />
-                  <Text style={styles.todoListText}>{todo.content}</Text>
-                </View>
-              );
-            })}
-          </ScrollView>
+          {allTodos === null ? (
+            <Text>No Todos</Text>
+          ) : (
+            <ScrollView style={styles.todoListsDiv}>
+              {allTodos.map((todo) => {
+                return (
+                  <View style={styles.todoList} key={todo.id}>
+                    <CheckBox
+                      checked={todo.done}
+                      onClickHandler={doneTodo}
+                      id={todo.id}
+                    />
+                    <Text style={styles.todoListText}>{todo.content}</Text>
+                  </View>
+                );
+              })}
+            </ScrollView>
+          )}
         </View>
 
         <View style={styles.footerContainer}>
